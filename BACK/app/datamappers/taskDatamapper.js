@@ -50,7 +50,7 @@ const taskDatamapper = {
 
     return new Promise((resolve, reject) => {
         
-        db_connect.query(query, [task.libelle, task.start_date, task.end_date, task.description, task.status, task.user_id], (error, results) => {
+        db_connect.query(query, [...Object.values(task)], (error, results) => {
           if (error) {
             reject(error);
           } else {
@@ -64,11 +64,29 @@ const taskDatamapper = {
     // Update a task
     update: (id, task) => {
 
-      const query = `UPDATE task SET libelle = ?, start_date = ?, end_date = ?, description = ?, status = ?, user_id = ? WHERE id = ?`;
+
+      //Filtre les clefs qui ne sont pas vides
+      const filteredTask = {};
+
+
+      Object.keys(task).forEach((key) => {
+        if (task[key] !== "") {
+          const value = task[key];
+          filteredTask[key] = value;
+        }
+      });
+
+      //Création de la requête SQL
+      
+      const placeholders = Object.keys(filteredTask).map(key => `${key} = ?`);
+      console.log("placeholders", placeholders)
+      
+      const query = `UPDATE task SET ${placeholders.join(', ')} WHERE id = ?`;
+
 
       return new Promise((resolve, reject) => {
           
-        db_connect.query(query, [task.libelle, task.start_date, task.end_date, task.description, task.status, task.user_id, id], (error, results) => {
+        db_connect.query(query, [...Object.values(filteredTask), id], (error, results) => {
           if (error) {
             console.log("ERROR Update", error)
             reject(error);

@@ -27,21 +27,19 @@ const taskController = {
             
         const task = req.body;
     
-        const newTask = await taskDatamapper.create(task);
+        await taskDatamapper.create(task);
     
-        res.status(201).json(newTask);
+        res.status(201).json("La tâche a bien été créée");
     
     },
 
     update: async (req, res, next) => {
             
-            const id = req.params.id;
-
-            const task = req.body;
+            const id = req.params.id;        
     
-            const updatedTask = await taskDatamapper.update(id, task);
+            await taskDatamapper.update(id, req.body);
     
-            res.status(200).json(updatedTask);
+            res.status(200).json("La tâche a bien été modifiée");
     
     },
 
@@ -50,9 +48,9 @@ const taskController = {
 
             const id = req.params.id;
     
-            const task = await taskDatamapper.delete(id);
+            await taskDatamapper.delete(id);
     
-            res.status(200).json(task);
+            res.status(200).json("La tâche a bien été supprimée");
     
     }
 
