@@ -49,7 +49,7 @@ export default {
                 end_date: '',
                 description: '',
                 status: 'todo',
-                user_id: 1, // changer le user_id si nécessaire
+                user_id: null,
             },
         };
     },
@@ -80,52 +80,3 @@ export default {
 };
 </script>
   
-
-
-
-
-<!-- <script>
-import axios from 'axios';
-export default {
-    name: 'Homepage',
-    data() {
-        return {
-            task: {
-                libelle: '',
-                heureDebut: '',
-                heureFin: '',
-            },
-            tasks: []
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            // Code pour envoyer la tâche à la base de données
-            const task = {
-                ...this.task,
-            }
-            task.user_id = "";
-            console.log(task)
-
-            // Envoyer la tâche au backend
-            try {
-                const response = await axios.post('http://localhost:3000/tasks/add', task, {
-
-                });
-                const newTask = response.data;
-                // Ajouter la tâche à la liste des tâches
-                this.tasks.push(newTask);// $store.commit sert à appeler une mutation disponible grace à Vuex 
-            } catch (error) {
-                console.log(error);
-            }
-
-
-
-            // Réinitialiser le formulaire
-            this.task.label = ''
-            this.task.start = ''
-            this.task.end = ''
-        }
-    }
-}
-</script> -->

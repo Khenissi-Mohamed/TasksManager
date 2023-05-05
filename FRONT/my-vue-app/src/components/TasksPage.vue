@@ -30,8 +30,8 @@ th {
         <select id="tri" v-model="orderBy">
 
             <!-- // v-model est similaire à value de React et onChange est implicite ici contrairement à React où il faut le définir explicitement avec @change // -->
-            <option value="heureDebut">Heure de début</option>
-            <option value="heureFin">Heure de fin</option>
+            <option value="start_date">Heure de début</option>
+            <option value="end_date">Heure de fin</option>
             <option value="libelle">Libellé</option>
         </select>
 
@@ -47,8 +47,8 @@ th {
             <tbody>
                 <tr v-for="(task, index) in tasksSorted" :key="index"> <!-- tasksSorted est une propriété calculée -->
                     <td>{{ task.libelle }}</td> <!-- task est un objet -->
-                    <td>{{ task.start_date }}</td>
-                    <td>{{ task.end_date }}</td>
+                    <td>{{ formatDate(task.start_date) }}</td>
+                    <td>{{ formatDate(task.end_date) }}</td>
                     <td>
                         <!-- @click est un événement similaire à onClick de React -->
                         <button @click="handleDelete(task.id)">Supprimer
@@ -66,17 +66,13 @@ import axios from 'axios';
 export default {
     data() { // data est similaire aux states de React
         return {
-            orderBy: 'heureDebut',
+            orderBy: 'start_date',
             tasks: []
         }
     },
     computed: { // computed est similaire aux props de React
         tasksSorted() {
-            return this.tasks.sort((a, b) => {
-                if (a[this.orderBy] < b[this.orderBy]) return -1
-                if (a[this.orderBy] > b[this.orderBy]) return 1
-                return 0
-            })
+            return this.tasks.sort((a, b) => a[this.orderBy] < b[this.orderBy] ? -1 : 1);
         }
     },
     methods: { // methods est similaire aux méthodes de React
@@ -85,12 +81,17 @@ export default {
             axios.delete(`http://localhost:3000/tasks/delete/${taskId}`)
             const index = this.tasks.findIndex(task => task.id === taskId)
             this.tasks.splice(index, 1)
+        },
+        formatDate(date) {
+            return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Paris' }).format(new Date(date))
         }
+
     },
     async created() {
         // Récupérer les tâches depuis le backend et les stocker dans la variable "tasks"
         const tasks = await axios.get('http://localhost:3000/tasks')
         this.tasks = tasks.data
-    }
+    },
+
 }
 </script>
