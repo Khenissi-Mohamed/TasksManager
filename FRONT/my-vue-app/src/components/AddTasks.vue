@@ -1,5 +1,5 @@
 <style scoped>
-.add-task-title {
+/* .add-task-title {
     text-align: center;
 }
 
@@ -7,32 +7,100 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+} */
+.add-task-main {
+    width: 80%;
+}
+
+.add-task-title {
+    text-align: center;
+}
+
+.add-task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="datetime-local"],
+textarea,
+select {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+textarea {
+    height: 100px;
+}
+
+.add-task-btn {
+    background: radial-gradient(103.18% 236.51% at 96.82% 50%, #D13650 0%, #D33B64 32.29%, #9C3D80 54.17%, #3565A5 100%), #1D1D1B;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.add-task-btn:hover {
+    background: rgb(33, 50, 68);
+    background: linear-gradient(90deg, rgba(33, 50, 68, 1) 0%, rgba(5, 119, 62, 1) 25%, rgba(20, 22, 28, 1) 96%);
+    transition: all 0.3s ease-in-out;
 }
 </style>
 <template>
-    <div>
+    <div class="add-task-main">
         <h1 class="add-task-title">Add tasks</h1>
         <form class="add-task-form" @submit.prevent="handleSubmit">
-            <label for="libelle">Libellé :</label>
-            <input type="text" name="libelle" id="libelle" v-model="task.libelle" required>
+            <div class="form-group">
+                <label for="libelle">Libellé :</label>
+                <input type="text" name="libelle" id="libelle" v-model="task.libelle" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Début :</label>
+                <input type="datetime-local" name="start_date" id="start_date" v-model="task.start_date" required>
+            </div>
 
-            <label for="start_date">Début :</label>
-            <input type="datetime-local" name="start_date" id="start_date" v-model="task.start_date" required>
+            <div class="form-group">
+                <label for="end_date">Fin :</label>
+                <input type="datetime-local" name="end_date" id="end_date" v-model="task.end_date" required>
+            </div>
 
-            <label for="end_date">Fin :</label>
-            <input type="datetime-local" name="end_date" id="end_date" v-model="task.end_date" required>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" v-model="task.description"></textarea>
+            </div>
 
-            <label for="description">Description :</label>
-            <textarea id="description" name="description" v-model="task.description"></textarea>
+            <div class="form-group">
+                <label for="status">Status :</label>
+                <select id="status" name="status" v-model="task.status">
+                    <option value="todo">A faire</option>
+                    <option value="in_progress">En cours</option>
+                    <option value="done">Terminé</option>
+                </select>
+            </div>
 
-            <label for="status">Status :</label>
-            <select id="status" name="status" v-model="task.status">
-                <option value="todo">A faire</option>
-                <option value="in_progress">En cours</option>
-                <option value="done">Terminé</option>
-            </select>
-
-            <button type="submit">Enregistrer</button>
+            <button type="submit" class="add-task-btn">Enregistrer</button>
         </form>
     </div>
 </template>
@@ -51,30 +119,35 @@ export default {
                 status: 'todo',
                 user_id: null,
             },
+            tasks: [],
         };
     },
     methods: {
-        handleSubmit() {
+        async handleSubmit() {
             // Ajoutez ici la logique pour formatter la date et l'heure de début et de fin au format MySQL datetime
             const formattedStartDate = this.task.start_date.replace('T', ' ').replace(':00.000', '');
             const formattedEndDate = this.task.end_date.replace('T', ' ').replace(':00.000', '');
 
             // Envoie la requête POST à l'API backend
-            axios.post('http://localhost:3000/tasks/add', {
-                libelle: this.task.libelle,
-                start_date: formattedStartDate,
-                end_date: formattedEndDate,
-                description: this.task.description,
-                status: this.task.status,
-                user_id: this.task.user_id,
-            })
-                .then(response => {
-                    console.log(response.data);
-                    // Ajoutez ici la logique pour rediriger l'utilisateur vers la page de la liste des tâches
-                })
-                .catch(error => {
-                    console.log(error);
+            try {
+                const response = await axios.post('http://localhost:3000/tasks/add', {
+                    libelle: this.task.libelle,
+                    start_date: formattedStartDate,
+                    end_date: formattedEndDate,
+                    description: this.task.description,
+                    status: this.task.status,
+                    user_id: this.task.user_id,
                 });
+                console.log(response.data);
+                this.tasks.push(response.data);
+                // Ajoutez ici la logique pour rediriger l'utilisateur vers la page de la liste des tâches
+
+                const router = this.$router;
+                router.push('/tasks/all');
+
+            } catch (error) {
+                console.log(error);
+            }
         },
     },
 };
