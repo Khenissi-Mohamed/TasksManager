@@ -1,10 +1,15 @@
 const db_connect = require('../db_connect');
 
-const userDatamapper = {
-    // Get all users
+
+const userHoursDatamapper = {
+
+    // Get all userHours
+
     findAll: () => {
-        const query = `SELECT * FROM user`;
+
+        const query = `SELECT * FROM user_has_worked_how_long`;
         return new Promise((resolve, reject) => {
+
             db_connect.query(query, (error, results) => {
                 if (error) {
                     reject(error);
@@ -12,35 +17,36 @@ const userDatamapper = {
                     resolve(results);
                 }
             });
+
         })
     },
 
-    // Get one user
+    // Get one userHours
+
     findOne: (id) => {
-        const query = `SELECT * FROM user WHERE id = ?`; 
-        // const query = `
-        // SELECT user.*, task.* 
-        // FROM user
-        // LEFT JOIN task ON user.id = task.user_id
-        // WHERE user.id = ?;
-        // `
+
+        const query = `SELECT * FROM user_has_worked_how_long WHERE id = ?`;
         return new Promise((resolve, reject) => {
+
             db_connect.query(query, [id], (error, results) => {
                 if (error) {
                     reject(error);
                 } else {
-                    console.log(results)
                     resolve(results[0]);
                 }
             });
-        }) 
+
+        })
     },
 
-    // Create a user
-    create: (user) => {
-        const query = `INSERT INTO user (firstname, lastname, email, password) VALUES (?, ?, ?, ?)`;
+    // Create a userHours
+
+    create: (userHours) => {
+
+        const query = `INSERT INTO user_has_worked_how_long (user_id, hours_worked,created_at, updated_at) VALUES (?, ?, NOW(), NOW())`;
         return new Promise((resolve, reject) => {
-            db_connect.query(query, [...Object.values(user)], (error, results) => {
+
+            db_connect.query(query, [...Object.values(userHours)], (error, results) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -50,11 +56,14 @@ const userDatamapper = {
         })
     },
 
-    // Update a user
-    update: (id, user) => {
-        const query = `UPDATE user SET firstname = ?, lastname = ?, email = ?, password = ? WHERE id = ?`;
+    // Update a userHours
+
+    update: (id, userHours) => {
+
+        const query = `UPDATE user_has_worked_how_long SET user_id = ?, hours_worked = ? WHERE id = ?`;
         return new Promise((resolve, reject) => {
-            db_connect.query(query, [...Object.values(user), id], (error, results) => {
+
+            db_connect.query(query, [...Object.values(userHours), id], (error, results) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -64,10 +73,13 @@ const userDatamapper = {
         })
     },
 
-    // Delete a user
+    // Delete a userHours
+
     delete: (id) => {
-        const query = `DELETE FROM user WHERE id = ?`;
+
+        const query = `DELETE FROM user_has_worked_how_long WHERE id = ?`;
         return new Promise((resolve, reject) => {
+
             db_connect.query(query, [id], (error, results) => {
                 if (error) {
                     reject(error);
@@ -76,21 +88,7 @@ const userDatamapper = {
                 }
             });
         })
-    },
-
-    // Find a user by email
-    findByEmail: (email) => {
-        const query = `SELECT * FROM user WHERE email = ?`;
-        return new Promise((resolve, reject) => {
-            db_connect.query(query, [email], (error, results) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results[0]);
-                }
-            });
-        }
-    )},
-
+    }
 }
- module.exports = userDatamapper;
+
+module.exports = userHoursDatamapper;

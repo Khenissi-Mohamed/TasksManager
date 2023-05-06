@@ -46,7 +46,7 @@ const taskDatamapper = {
 
   create: (task) => {
 
-    const query = `INSERT INTO task (libelle, start_date, end_date,  description, status, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO task (libelle, start_date, end_date, description, status, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
 
     return new Promise((resolve, reject) => {
         
@@ -79,7 +79,7 @@ const taskDatamapper = {
       //Création de la requête SQL
       
       const placeholders = Object.keys(filteredTask).map(key => `${key} = ?`);
-      console.log("placeholders", placeholders)
+
       
       const query = `UPDATE task SET ${placeholders.join(', ')} WHERE id = ?`;
 
@@ -118,7 +118,25 @@ const taskDatamapper = {
       
     },
 
-  
+    getTasksByUser : async (id) => {
+
+
+      const query = 'SELECT * FROM task WHERE user_id = ?'
+
+
+      return new Promise((resolve, reject) => {
+          
+        db_connect.query(query, [id], (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(results)
+            resolve(results);
+          }
+        });
+      })
+
+    }
         
 
 
