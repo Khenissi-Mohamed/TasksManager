@@ -6,10 +6,12 @@ import HomePage from './components/HomePage.vue'
 import TasksPage from './components/TasksPage.vue'
 import TasksAssignement from './components/TasksAssignement.vue'
 import AddTasks from './components/AddTasks.vue'
+import login from './components/login.vue'
 
 
 const routes = [
     { path: '/', component: HomePage },
+    { path: '/login', component: login},
     { path: '/tasks', component: AddTasks },
     { path: '/tasks/assignement', component: TasksAssignement },
     { path: '/tasks/all', component: TasksPage },

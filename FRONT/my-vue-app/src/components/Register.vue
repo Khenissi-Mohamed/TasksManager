@@ -50,8 +50,9 @@ export default {
           this.showWelcome = true;
           setTimeout(() => {
             this.showWelcome = false;
-          }, 5000);
-        }
+            this.$router.push('/login');
+        }, 3000);
+    }
         this.user = {
           firstname: '',
           lastname: '',
