@@ -1,3 +1,84 @@
+<template>
+    <NavBar />
+    <div class="table-wrapper">
+        <h1>Liste des tâches</h1>
+        <label for="tri">Trier par :</label>
+        <select id="tri" v-model="orderBy">
+            <option value="start_date">Heure de début</option>
+            <option value="end_date">Heure de fin</option>
+            <option value="libelle">Libellé</option>
+        </select>
+        <table>
+            <thead>
+                <tr>
+                    <th>Libellé</th>
+                    <th>Heure de début</th>
+                    <th>Heure de fin</th>
+                    <th>Déscription</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(task, index) in tasksSorted" :key="index">
+                    <td>{{ task.libelle }}</td>
+                    <td>{{ formatDate(task.start_date) }}</td>
+                    <td>{{ formatDate(task.end_date) }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <button @click="handleDelete(task.id)">Supprimer</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="action-btn-wrapper">
+        <router-link to="/tasks">
+            <button>Ajouter une tâche</button>
+        </router-link>
+        <router-link to="/tasks/assignement">
+            <button>Assigner une tâche</button>
+        </router-link>
+    </div>
+</template>
+
+<script>
+import axios from 'axios';
+import NavBar from './NavBar.vue';
+
+export default {
+    components: { NavBar },
+    data() {
+        return {
+            orderBy: "start_date",
+            tasks: []
+        };
+    },
+    computed: {
+        tasksSorted() {
+            return this.tasks.sort((a, b) => a[this.orderBy] < b[this.orderBy] ? -1 : 1);
+        }
+    },
+    methods: {
+        handleDelete(taskId) {
+            axios.delete(`http://localhost:3000/tasks/delete/${taskId}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            const index = this.tasks.findIndex(task => task.id === taskId);
+            this.tasks.splice(index, 1);
+        },
+        formatDate(date) {
+            return new Intl.DateTimeFormat("fr-FR", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(date));
+        }
+    },
+    async created() {
+        const token = localStorage.getItem("token");
+        const tasks = await axios.get("http://localhost:3000/tasks", { headers: { Authorization: `Bearer ${token}` } });
+        this.tasks = tasks.data;
+    },
+    components: { NavBar }
+}
+</script>
+
 <style scoped>
 .table-wrapper {
     display: flex;
@@ -117,97 +198,3 @@ button:hover {
 
 }
 </style>
-<template>
-    <div class="table-wrapper">
-        <h1>Liste des tâches</h1>
-        <label for="tri">Trier par :</label>
-        <!--orderBy est une propriété de data donc là on fait du two-way binding c'est à dire que si on change la valeur de orderBy dans le code, la valeur du select sera aussi modifiée et vice-versa -->
-        <select id="tri" v-model="orderBy">
-
-            <!-- // v-model est similaire à value de React et onChange est implicite ici contrairement à React où il faut le définir explicitement avec @change // -->
-            <option value="start_date">Heure de début</option>
-            <option value="end_date">Heure de fin</option>
-            <option value="libelle">Libellé</option>
-        </select>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Libellé</th>
-                    <th>Heure de début</th>
-                    <th>Heure de fin</th>
-                    <th>Déscription</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(task, index) in tasksSorted" :key="index"> <!-- tasksSorted est une propriété calculée -->
-                    <td>{{ task.libelle }}</td> <!-- task est un objet -->
-                    <td>{{ formatDate(task.start_date) }}</td>
-                    <td>{{ formatDate(task.end_date) }}</td>
-                    <td>{{ task.description }}</td>
-                    <td>
-                        <button @click="handleDelete(task.id)">Supprimer</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="action-btn-wrapper">
-        <router-link to="/tasks">
-            <button>Ajouter une tâche</button>
-        </router-link>
-        <router-link to="/tasks/assignement">
-            <button>Assigner une tâche</button>
-        </router-link>
-    </div>
-</template>
-
-<script>
-import axios from 'axios';
-// import { mounted } from 'vue';
-export default {
-    data() { // data est similaire aux states de React
-        return {
-            orderBy: 'start_date',
-            tasks: []
-        }
-    },
-    computed: { // computed est similaire aux props de React
-        tasksSorted() {
-            return this.tasks.sort((a, b) => a[this.orderBy] < b[this.orderBy] ? -1 : 1);
-        }
-    },
-    methods: { // methods est similaire aux méthodes de React
-        handleDelete(taskId) {
-            // Envoyer l'identifiant de la tâche au backend pour la supprimer de la base de données
-            axios.delete(`http://localhost:3000/tasks/delete/${taskId}`,
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-            )
-            const index = this.tasks.findIndex(task => task.id === taskId)
-            this.tasks.splice(index, 1)
-        },
-        // handleRedirect() {
-        //     this.$router.push('/tasks/assignement')
-        // },
-        formatDate(date) {
-            return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Paris' }).format(new Date(date))
-        }
-
-    },
-    async created() {
-        // Récupérer les tâches depuis le backend et les stocker dans la variable "tasks"
-        const token = localStorage.getItem('token')
-        const tasks = await axios.get('http://localhost:3000/tasks',
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        )
-        this.tasks = tasks.data
-        console.log("tasks", tasks.data);
-    },
-
-}
-</script>

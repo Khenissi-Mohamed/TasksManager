@@ -1,13 +1,97 @@
-<style scoped>
-/* .add-task-title {
-    text-align: center;
-}
+<template>
+    <NavBar />
+    <div class="add-task-main">
+        <h1 class="add-task-title">Add tasks</h1>
+        <form class="add-task-form" @submit.prevent="handleSubmit">
+            <div class="form-group">
+                <label for="libelle">Libellé :</label>
+                <input type="text" name="libelle" id="libelle" v-model="task.libelle" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Début :</label>
+                <input type="date" name="start_date" id="start_date" v-model="task.start_date" required>
+            </div>
+            <div class="form-group" style="display: none;">
+                <label for="end_date">Fin :</label>
+                <input type="date" name="end_date" id="end_date" v-model="task.end_date">
+            </div>
+            <div class="form-group">
+                <label for="start_time">Heure de début :</label>
+                <input type="time" name="start_time" id="start_time" v-model="task.start_time" required>
+            </div>
+            <div class="form-group">
+                <label for="end_time">Heure de fin :</label>
+                <input type="time" name="end_time" id="end_time" v-model="task.end_time" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" v-model="task.description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="status">Status :</label>
+                <select id="status" name="status" v-model="task.status">
+                    <option value="todo">A faire</option>
+                    <option value="in_progress">En cours</option>
+                    <option value="done">Terminé</option>
+                </select>
+            </div>
+            <button type="submit" class="add-task-btn">Enregistrer</button>
+        </form>
+    </div>
+</template>
+<script>
+import axios from 'axios';
+import NavBar from './NavBar.vue';
 
-.add-task-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-} */
+export default {
+    components: { NavBar },
+    data() {
+        return {
+            task: {
+                libelle: "",
+                start_date: "",
+                end_date: "",
+                start_time: "",
+                end_time: "",
+                description: "",
+                status: "todo",
+                user_id: null,
+            },
+            tasks: [],
+        };
+    },
+    methods: {
+        async handleSubmit() {
+            // La logique pour formatter la date et l'heure de début et de fin au format MySQL datetime
+            let formattedStartDate = this.task.start_date.replace("T", `${this.task.start_time}`);
+            let formattedEndDate = this.task.end_date.replace("T", `${this.task.end_time}`);
+            const endateModify = formattedStartDate.slice(0, 10);
+            formattedEndDate = endateModify + `-${this.task.end_time}`;
+            formattedStartDate = formattedStartDate + `-${this.task.start_time}`;
+            // Envoie la requête POST à l'API 
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.post("http://localhost:3000/tasks/add", {
+                    libelle: this.task.libelle,
+                    start_date: formattedStartDate,
+                    end_date: formattedEndDate,
+                    description: this.task.description,
+                    status: this.task.status,
+                    user_id: this.task.user_id,
+                }, { headers: { Authorization: `Bearer ${token}` } });
+                this.tasks.push(response.data);
+                const router = this.$router;
+                router.push("/tasks/all");
+            }
+            catch (error) {
+                console.log(error);
+            }
+        },
+    },
+    components: { NavBar }
+};
+</script>
+<style scoped>
 .add-task-main {
     width: 80%;
 }
@@ -68,114 +152,3 @@ textarea {
     transition: all 0.3s ease-in-out;
 }
 </style>
-<template>
-    
-    <div class="add-task-main">
-        <h1 class="add-task-title">Add tasks</h1>
-        <form class="add-task-form" @submit.prevent="handleSubmit">
-            <div class="form-group">
-                <label for="libelle">Libellé :</label>
-                <input type="text" name="libelle" id="libelle" v-model="task.libelle" required>
-            </div>
-            <div class="form-group">
-                <label for="start_date">Début :</label>
-                <input type="date" name="start_date" id="start_date" v-model="task.start_date" required>
-            </div>
-
-            <div class="form-group" style="display: none;">
-                <label for="end_date">Fin :</label>
-                <input type="date" name="end_date" id="end_date" v-model="task.end_date">
-            </div>
-
-            <div class="form-group">
-                <label for="start_time">Heure de début :</label>
-                <input type="time" name="start_time" id="start_time" v-model="task.start_time" required>
-            </div>
-
-            <div class="form-group">
-                <label for="end_time">Heure de fin :</label>
-                <input type="time" name="end_time" id="end_time" v-model="task.end_time" required>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description :</label>
-                <textarea id="description" name="description" v-model="task.description"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="status">Status :</label>
-                <select id="status" name="status" v-model="task.status">
-                    <option value="todo">A faire</option>
-                    <option value="in_progress">En cours</option>
-                    <option value="done">Terminé</option>
-                </select>
-            </div>
-
-            <button type="submit" class="add-task-btn">Enregistrer</button>
-        </form>
-    </div>
-</template>
-  
-<script>
-import axios from 'axios';
-
-export default {
-    data() {
-        return {
-            task: {
-                libelle: '',
-                start_date: '',
-                end_date: '',
-                start_time: '',
-                end_time: '',
-                description: '',
-                status: 'todo',
-                user_id: null,
-            },
-            tasks: [],
-        };
-    },
-    methods: {
-        async handleSubmit() {
-            // La logique pour formatter la date et l'heure de début et de fin au format MySQL datetime
-            let formattedStartDate = this.task.start_date.replace('T', `${this.task.start_time}`);
-            let formattedEndDate = this.task.end_date.replace('T', `${this.task.end_time}`);
-            const endateModify = formattedStartDate.slice(0, 10);
-            formattedEndDate = endateModify + `-${this.task.end_time}`
-            formattedStartDate = formattedStartDate + `-${this.task.start_time}`
-
-            // Envoie la requête POST à l'API backend
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.post('http://localhost:3000/tasks/add', {
-                    libelle: this.task.libelle,
-                    start_date: formattedStartDate,
-                    end_date: formattedEndDate,
-                    description: this.task.description,
-                    status: this.task.status,
-                    user_id: this.task.user_id,
-                },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
-
-                console.log(response.data);
-                console.log("task", this.task);
-                this.tasks.push(response.data);
-                // La logique pour rediriger l'utilisateur vers la page de la liste des tâches
-
-                const router = this.$router;
-                router.push('/tasks/all');
-
-
-
-            } catch (error) {
-                console.log(error);
-            }
-        },
-    },
-};
-</script>
-  

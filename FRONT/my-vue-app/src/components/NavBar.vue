@@ -1,5 +1,8 @@
 <template lang="">
     <div class="navBar">
+        <RouterLink to="/">
+            Home
+        </RouterLink>
         <RouterLink to="/tasks">
             Add tasks
         </RouterLink>
@@ -19,8 +22,8 @@ export default {
 
 }
 </script>
-<style lang="">
-    .navBar {
+<style >
+.navBar {
     display: flex;
     flex-direction: row;
     align-items: center;

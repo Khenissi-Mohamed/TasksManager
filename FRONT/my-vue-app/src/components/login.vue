@@ -1,4 +1,7 @@
 <template>
+    <div class="header">
+        <h1>Task Manager</h1>
+    </div>
     <div class="login-form">
         <h2>Login</h2>
         <form @submit.prevent="handleSubmit">
@@ -8,7 +11,6 @@
             <label for="password">Password :</label>
             <input type="password" name="password" id="password" v-model="user.password" required
                 autocomplete="current-password">
-
             <button type="submit">Login</button>
         </form>
     </div>
@@ -33,16 +35,13 @@ export default {
             });
             if (response) {
                 localStorage.setItem('token', response.data.token);
-                // this.$emit('login-success')
                 this.$router.push('/tasks/all');
             }
             console.log(response);
-
         }
     }
 };
-</script>
-  
+</script>  
 <style scoped>
 .login-form {
     max-width: 500px;
@@ -90,6 +89,11 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background: rgb(33, 50, 68);
     background: linear-gradient(90deg, rgba(33, 50, 68, 1) 0%, rgba(5, 119, 62, 1) 25%, rgba(20, 22, 28, 1) 96%);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 5rem;
 }
 </style>
   

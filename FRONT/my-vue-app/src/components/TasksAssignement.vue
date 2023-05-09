@@ -1,3 +1,141 @@
+<template >
+    <NavBar />
+    <div class="assignement-task-wrapper">
+        <h1>Assigner une tâche</h1>
+        <form class="assignement-task-form" @submit.prevent="assignTask">
+            <label for="employee">Employé :</label>
+            <select id="employee" v-model="employee" required>
+                <option value="">Choisir un employé</option>
+                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{
+                    employee.firstname }}</option>
+            </select>
+            <label for="task">Tâche :</label>
+            <select id="task" v-model="task" required>
+                <option value="">Choisir une tâche</option>
+                <option v-for="task in unassignedTasks" :key="task.id" :value="task.id">{{ task.libelle }}</option>
+            </select>
+            <button type="submit">Assigner</button>
+        </form>
+    </div>
+    <div class="assignement-task-table">
+        <h1>Tableau des tâches assignées</h1>
+        <div class="error-message" v-if="errorMessage">
+            {{ errorMessage }}
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employé</th>
+                    <th>Tâche</th>
+                    <th>Durée total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="task in tasks" :key="task.id">
+                    <td>{{ employees.find(e => e.id === task.user_id) ? employees.find(e => e.id === task.user_id).firstname
+                        + ' ' + employees.find(e => e.id === task.user_id).lastname : 'Non assignée' }}</td>
+                    <td>{{ task.libelle }}</td>
+                    <td>{{ duration(task) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
+<script>
+import axios from 'axios';
+import NavBar from './NavBar.vue';
+
+export default {
+    components: { NavBar },
+    data() {
+        return {
+            employee: "",
+            task: "",
+            employees: [],
+            tasks: [],
+            errorMessage: "",
+        };
+    },
+    computed: {
+        unassignedTasks() {
+            return this.tasks.filter(task => !task.employee_id);
+        },
+        assignedTasks() {
+            return this.tasks.filter(task => task.employee_id);
+        },
+    },
+    methods: {
+        duration(task) {
+            const start = new Date(task.start_date);
+            const end = new Date(task.end_date);
+            const duration = (end - start) / 1000 / 60 / 60;
+            return duration.toFixed(2);
+        },
+        async assignTask() {
+            // verifier si la tache est deja assignée
+            // if (this.tasks.find(task => task.id === this.task).user_id) {
+            //     this.errorMessage = 'Cette tâche est déjà assignée';
+            //     setTimeout(() => {
+            //         this.errorMessage = '';
+            //     }, 3000);
+            //     return;
+            // }
+            // verifier si l'employé a travaillé plus de 8h
+            // Code pour affecter la tâche à l'employé dans la base de données
+            try {
+                const response = await axios.patch(`http://localhost:3000/tasks/update/${this.task}`, {
+                    user_id: this.employee,
+                }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+                this.errorMessage = response.data;
+                this.getTasks();
+            }
+            catch (error) {
+                console.log(error);
+            }
+            // Réinitialiser le formulaire
+            this.task = "";
+        },
+        async getEmployees() {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("http://localhost:3000/user", { headers: { Authorization: `Bearer ${token}` } });
+                this.employees = response.data;
+                console.log("employees", response);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        },
+        async getTasks() {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("http://localhost:3000/tasks", { headers: { Authorization: `Bearer ${token}` } });
+                this.tasks = response.data;
+                console.log("task", response);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        },
+        async updateAssignedTasks() {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("http://localhost:3000/tasks", { headers: { Authorization: `Bearer ${token}` } });
+                this.tasks = response.data;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        },
+    },
+    mounted() {
+        this.getEmployees();
+        this.getTasks();
+    },
+    components: { NavBar }
+};
+
+</script>
 <style scoped>
 .assignement-task-wrapper {
     width: 80%;
@@ -63,12 +201,13 @@ table {
 thead th {
     background-color: #ccc;
     color: white;
-    text-align: left;
+    text-align: center;
+    padding: 0.5rem 0;
 }
 
 tbody td,
 tbody th {
-    padding: 0.5rem;
+    padding: 0.5rem 0;
     border: 1px solid #ccc;
 }
 
@@ -82,159 +221,3 @@ tbody tr:nth-child(even) {
     margin-bottom: 1rem;
 }
 </style>
-<template >
-    <div class="assignement-task-wrapper">
-        <h1>Assigner une tâche</h1>
-        <form class="assignement-task-form" @submit.prevent="assignTask">
-            <!-- @submit est un raccourci pour @submit="assignTask($event)" -->
-            <label for="employee">Employé :</label>
-            <select id="employee" v-model="employee" required>
-                <option value="">Choisir un employé</option>
-                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{
-                    employee.firstname }}</option>
-            </select>
-
-            <label for="task">Tâche :</label>
-            <select id="task" v-model="task" required>
-                <!--v-model permet de lier la valeur de l'input à la propriété task -->
-                <option value="">Choisir une tâche</option>
-                <option v-for="task in unassignedTasks" :key="task.id" :value="task.id">{{ task.libelle }}</option>
-            </select>
-
-            <button type="submit">Assigner</button>
-        </form>
-    </div>
-    <div class="assignement-task-table">
-        <!-- tableau d'employé et de leurs tache assignées -->
-        <h1>Tableau des tâches assignées</h1>
-        <div class="error-message" v-if="errorMessage">
-            {{ errorMessage }}
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Employé</th>
-                    <th>Tâche</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="task in tasks" :key="task.id">
-                    <td>{{ employees.find(e => e.id === task.user_id) ? employees.find(e => e.id === task.user_id).firstname
-                        + ' ' + employees.find(e => e.id === task.user_id).lastname : 'Non assignée' }}</td>
-                    <td>{{ task.libelle }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</template>
-<script>
-import axios from 'axios';
-
-
-export default {
-    data() {
-        return {
-            employee: '',// employee est l'id de l'employé
-            task: '', // task est l'id de la tâche
-            employees: [], // employees est un tableau d'objets contenant les employés
-            tasks: [], // tasks est un tableau d'objets contenant les tâches
-            errorMessage: '',
-        };
-    },
-    computed: {
-        unassignedTasks() {
-            return this.tasks.filter(task => !task.employee_id);
-        },
-        assignedTasks() {
-            return this.tasks.filter(task => task.employee_id);
-        },
-    },
-    methods: {
-        async assignTask() {
-            // verifier si la tache est deja assignée
-            // if (this.tasks.find(task => task.id === this.task).user_id) {
-            //     this.errorMessage = 'Cette tâche est déjà assignée';
-            //     setTimeout(() => {
-            //         this.errorMessage = '';
-            //     }, 3000);
-            //     return;
-            // }
-            // verifier si l'employé a travaillé plus de 8h
-
-
-            // Code pour affecter la tâche à l'employé dans la base de données
-            try {
-                const response = await axios.patch(`http://localhost:3000/tasks/update/${this.task}`, {
-                    user_id: this.employee,
-                },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                        }
-                    });
-                console.log(response);
-                this.errorMessage = response.data
-                this.getTasks();
-            } catch (error) {
-                console.log(error);
-            }
-            // Réinitialiser le formulaire
-            this.task = '';
-        },
-        async getEmployees() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3000/user',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                this.employees = response.data;
-                console.log("employees", response);
-            } catch (error) {
-                console.log(error);
-            }
-
-        },
-        async getTasks() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3000/tasks',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                this.tasks = response.data; // this.task est un tableau d'objets dans notre data qui contient toutes les tâches
-                console.log("task", response);
-            } catch (error) {
-                console.log(error);
-            }
-        },
-        async updateAssignedTasks() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3000/tasks',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                this.tasks = response.data; // this.task est un tableau d'objets dans notre data qui contient toutes les tâches
-                console.log("unassigned task", response);
-            } catch (error) {
-                console.log(error);
-            }
-        },
-
-    },
-    mounted() { // Le composant est monté dans le DOM similaire à useEffect en React
-        this.getEmployees();
-        this.getTasks();
-    },
-};
-
-
-</script>
