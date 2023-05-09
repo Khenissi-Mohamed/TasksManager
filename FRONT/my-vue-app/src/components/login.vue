@@ -2,8 +2,11 @@
     <div class="header">
         <h1>Task Manager</h1>
     </div>
+    <div class="message" v-if="message">
+        {{ message }}
+    </div>
     <div class="login-form">
-        <h2>Login</h2>
+        <h2>Connection</h2>
         <form @submit.prevent="handleSubmit">
             <label for="email">Email :</label>
             <input type="email" name="email" id="email" v-model="user.email" required autocomplete="current-email">
@@ -14,32 +17,42 @@
             <button type="submit">Login</button>
         </form>
     </div>
+    <RegisterVue v-if="logged" />
 </template>
   
 <script>
 import axios from 'axios';
+import RegisterVue from './Register.vue';
+
 export default {
+    components: { RegisterVue },
     data() {
         return {
             user: {
                 email: '',
                 password: '',
             },
+            logged: false,
+            message: '',
         };
     },
     methods: {
         async handleSubmit() {
-            const response = await axios.post('http://localhost:3000/user/login', {
-                email: this.user.email,
-                password: this.user.password,
-            });
-            if (response) {
+            try {
+                const response = await axios.post('http://localhost:3000/user/login', {
+                    email: this.user.email,
+                    password: this.user.password,
+                });
                 localStorage.setItem('token', response.data.token);
                 this.$router.push('/tasks/all');
+                this.logged = true;
+            } catch (error) {
+                console.log(error);
+                this.message = 'Email ou mot de passe incorrect !';
+                this.logged = true;
             }
-            console.log(response);
-        }
-    }
+        },
+    },
 };
 </script>  
 <style scoped>
@@ -93,7 +106,13 @@ button[type="submit"]:hover {
 
 .header {
     text-align: center;
-    margin-bottom: 5rem;
+    margin-bottom: 1rem;
+}
+
+.message {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: red;
 }
 </style>
   

@@ -1,3 +1,7 @@
+# lien du site 
+
+https://tasks-manager-x6rz.vercel.app/
+
 # Sprint 1
 
 ## Analyser les fonctionnalitées
@@ -110,9 +114,10 @@ Vite, Vue, Vue-router, Axios
 
 ## Model Vite de Vue.js 
 
-### 6 composants : 
+### 7 composants : 
 - homePage
 - navBar
+- inscription
 - login
 - addTask
 - tasksAssignement
@@ -121,6 +126,7 @@ Vite, Vue, Vue-router, Axios
 ### Lorsque que l'utilisateur accède au site :
 
 - il doit se connecter pour accéder aux autres page.
+- sinon il sera redirigé vers un formulaire d'incription.
 - il est redirigé vers la page pour créer des tâches et il a accès via la navbar aux autres page du site : 
 - voir les taches et à qui elles sont assignées.
 - assigner les tâches.

@@ -39,10 +39,10 @@ const userController = {
     destroy: async (req, res) => {
         
         const id = req.params.id;
-        const destroyd = await userDatamapper.destroy(id);
+        const destroy = await userDatamapper.destroy(id);
 
-        if (destroyd instanceof Error) {
-            next(destroyd)
+        if (destroy instanceof Error) {
+            next(destroy)
         }
         res.status(200).json("L'utilisateur a bien été supprimé");
 
