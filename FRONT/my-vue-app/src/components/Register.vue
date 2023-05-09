@@ -5,25 +5,23 @@
     <div class="welcome-message" v-if="successMessage">
         {{ successMessage }}
     </div>
-    <form @submit.prevent="submitForm">
-      <div>
-        <label for="firstname">First Name:</label>
-        <input type="text" name="firstname" id="firstname" v-model="user.firstname" required>
-      </div>
-      <div>
-        <label for="lastname">Last Name:</label>
-        <input type="text" name="lastname" id="lastname" v-model="user.lastname" required>
-      </div>
-      <div>
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" v-model="user.email" required autocomplete="current-email">
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" v-model="user.password" required autocomplete="current-password">
-      </div>
-      <button type="submit">Register</button>
-    </form>
+    <div class="form-wrapper">
+        <form @submit.prevent="submitForm">
+            <label for="firstname">First Name:</label>
+            <input type="text" name="firstname" id="firstname" v-model="user.firstname" required>
+
+            <label for="lastname">Last Name:</label>
+            <input type="text" name="lastname" id="lastname" v-model="user.lastname" required>
+
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" v-model="user.email" required autocomplete="current-email">
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" v-model="user.password" required autocomplete="current-password">
+
+          <button type="submit">Register</button>
+        </form>
+    </div>
 </template>
 
 <script>
@@ -69,6 +67,14 @@ export default {
 </script>
 
 <style scoped>
+.form-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 .register-form {
   max-width: 500px;
   margin: 0 auto;
