@@ -3,6 +3,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    width: 80%;
 }
 
 h1 {
@@ -64,6 +65,11 @@ button:hover {
     transition: all 0.3s ease-in-out;
 }
 
+.action-btn-wrapper {
+    display: flex;
+    gap: 1rem;
+}
+
 @media (max-width: 700px) {
 
     table {
@@ -104,6 +110,10 @@ button:hover {
         font-weight: bold;
     }
 
+    button {
+        padding: 5px 10px;
+        font-size: 0.8em;
+    }
 
 }
 </style>
@@ -137,13 +147,19 @@ button:hover {
                     <td>{{ formatDate(task.end_date) }}</td>
                     <td>{{ task.description }}</td>
                     <td>
-                        <!-- @click est un événement similaire à onClick de React -->
-                        <button @click="handleDelete(task.id)">Supprimer
-                        </button> <!-- handleDelete est une méthode -->
+                        <button @click="handleDelete(task.id)">Supprimer</button>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class="action-btn-wrapper">
+        <router-link to="/tasks">
+            <button>Ajouter une tâche</button>
+        </router-link>
+        <router-link to="/tasks/assignement">
+            <button>Assigner une tâche</button>
+        </router-link>
     </div>
 </template>
 
@@ -165,10 +181,15 @@ export default {
     methods: { // methods est similaire aux méthodes de React
         handleDelete(taskId) {
             // Envoyer l'identifiant de la tâche au backend pour la supprimer de la base de données
-            axios.delete(`http://localhost:3000/tasks/delete/${taskId}`)
+            axios.delete(`http://localhost:3000/tasks/delete/${taskId}`,
+                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+            )
             const index = this.tasks.findIndex(task => task.id === taskId)
             this.tasks.splice(index, 1)
         },
+        // handleRedirect() {
+        //     this.$router.push('/tasks/assignement')
+        // },
         formatDate(date) {
             return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Paris' }).format(new Date(date))
         }
@@ -176,8 +197,16 @@ export default {
     },
     async created() {
         // Récupérer les tâches depuis le backend et les stocker dans la variable "tasks"
-        const tasks = await axios.get('http://localhost:3000/tasks')
+        const token = localStorage.getItem('token')
+        const tasks = await axios.get('http://localhost:3000/tasks',
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
         this.tasks = tasks.data
+        console.log("tasks", tasks.data);
     },
 
 }

@@ -27,12 +27,17 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            const response = await axios.post('http://localhost:3000/user/login', this.user);
-            console.log(response);
-            if (response.data.success) {
+            const response = await axios.post('http://localhost:3000/user/login', {
+                email: this.user.email,
+                password: this.user.password,
+            });
+            if (response) {
                 localStorage.setItem('token', response.data.token);
-                this.$router.push('/tasks');
+                // this.$emit('login-success')
+                this.$router.push('/tasks/all');
             }
+            console.log(response);
+
         }
     }
 };
