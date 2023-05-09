@@ -150,6 +150,7 @@ Avec la puissance de flexbox j'ai pu gerer le responsive en utilisant la methode
 
  J'affiche la liste de tâches pour permettre de trier les tâches en fonction de leur heure de début, de fin ou de leur libellé.  
  Les tâches sont récupérées à partir de API en utilisant Axios et sont stockées dans la variable tasks.
+ Je constate assez tard qu'il y a un bug sur cette fonction.
 
 
 ## Vue js et MySQL
