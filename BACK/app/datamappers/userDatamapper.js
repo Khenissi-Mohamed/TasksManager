@@ -29,7 +29,7 @@ const userDatamapper = {
                 if (error) {
                     reject(error);
                 } else {
-                    console.log(results)
+                    
                     resolve(results[0]);
                 }
             });
@@ -65,7 +65,7 @@ const userDatamapper = {
     },
 
     // Delete a user
-    delete: (id) => {
+    destroy: (id) => {
         const query = `DELETE FROM user WHERE id = ?`;
         return new Promise((resolve, reject) => {
             db_connect.query(query, [id], (error, results) => {

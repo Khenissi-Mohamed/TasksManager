@@ -7,8 +7,6 @@ const connection = mysql.createConnection({
   database: 'task'
 });
 
-
-
 connection.connect((error) => {
   if (error) {
       console.error('Erreur de connexion à MySQL :', error);

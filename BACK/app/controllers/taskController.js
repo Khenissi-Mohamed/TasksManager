@@ -1,126 +1,113 @@
 const taskDatamapper = require('../datamappers/taskDatamapper');
-
+const userDatamapper = require('../datamappers/userDatamapper');
 
 const taskController = {
-
 
     getAll: async(req, res, next) => {
 
             const tasks = await taskDatamapper.findAll();
 
+            if(tasks instanceof Error){
+                next(tasks)
+            }
             res.status(200).json(tasks);
-
-
     },
 
     getOne: async(req, res, next) => {
 
         const id = req.params.id;
-
         const task = await taskDatamapper.findOne(id);
 
+        if(task instanceof Error){
+            next(task)
+        }
         res.status(200).json(task);
-
     },
 
     create: async(req, res, next) => {
             
         const task = req.body;
+        const create =  await taskDatamapper.create(task);
 
-        console.log('createTask', task)
-    
-        await taskDatamapper.create(task);
-    
+        if(create instanceof Error){
+            next(create)
+        }
         res.status(201).json("La tâche a bien été créée");
-    
+    },
+
+    destroy: async (req, res, next) => {
+
+        const id = req.params.id;  
+        const destroyd = await taskDatamapper.destroy(id);
+
+        if(destroyd instanceof Error){
+            next(destroyd)
+        }
+        res.status(200).json("La tâche a bien été supprimée");
     },
 
     update: async (req, res, next) => {
-            
-            const id = req.params.id;        
-            const user_id = req.body
+    // Assignation d'une tache a un utilisateur => Update du user_id dans la table task
 
-            const userTasks = await taskDatamapper.getTasksByUser(user_id)
+        const task_id = req.params.id;        
+        const user_id = req.body.user_id;
+                
+    // Verification si l'utilisateur est libre au moment de l'execution de la nouvelle tache
 
-            console.log('ID TO MODIFY', id)
-            console.log('BODY TO MODIFY', req.body)
+        // Recuperer toutes les taches assignées a l'utilisateur et l'utilisateur en question
+        const userTasks = await taskDatamapper.getTasksByUser(user_id);
+        const user = await userDatamapper.findOne(user_id);
 
-    
-            await taskDatamapper.update(id, req.body);
-    
-            res.status(200).json("La tâche a bien été modifiée");
-    
-    },
-
-    delete: async (req, res, next) => {
-
-
-        const id = req.params.id;
-        
-        console.log('ID TO DELETE', id)
-    
-            await taskDatamapper.delete(id);
-    
-            res.status(200).json("La tâche a bien été supprimée");
-    
-    },
-
-/*     createTask: async (req, res, next) => {
-
-        const { libelle, start_date, end_date, status, user_id} = req.body
-
-        const userTasks = await taskDatamapper.getTasksByUser(user_id)
-
-        // 
-        if(!userTasks) {
-
-            
-            // PASSE A LA DEUXIEME CONDITION QUI VERIFIE SI L'USER TRAVAILLE PLUS DE 8H PAR JOURS
-
+        // Si userTasks est vide (l'utilisateur n'a donc pas de taches assignées)
+        // On ajoute lui assigne la nouvelle tache sans autres verifications
+        if(userTasks.length === 0){
+            const update = await taskDatamapper.update(task_id, req.body)
+            return res.status(200).json(`La tâche a bien été assignée à ${user.firstname} ${user.lastname}`);
         }
-
-        userTasks.forEach(task => {
-
-            if(start_date < task.start_date && end_date < task.start_date || start_date > task.end_date && end_date > task.end_date){
-
-                // OK 
-                //SECONDE CONDITION 
+            
+        const newTask = await taskDatamapper.findOne(task_id) 
+        const newStart = newTask.start_date;
+        const newEnd = newTask.end_date;
+        const newDurationInHour = (newEnd - newStart) / 3600000
+        const dayOfNewTask = newStart.toString().slice(0, 10)
+        let conflict = false;
+        let totalDuration = 0;
+        let sameDayTaskCount = 0;
+        
+        // On boucle sur les taches assignées pour verifier la disponibilité 
+        userTasks.forEach((task) => {
+            const taskStart = task.start_date;
+            const taskEnd = task.end_date;      
+            const dayTask = taskStart.toString().slice(0, 10);
+          
+            if ((newStart >= taskStart && newStart < taskEnd) || (newEnd > taskStart && newEnd <= taskEnd) || (newStart <= taskStart && newEnd >= taskEnd)) {
+                conflict = true;
+                console.log('conflict');
+            } else if (dayTask === dayOfNewTask) {
+                // Calcul du nombre d'heures deja assignées dans la journée de la nouvelle tache
+                sameDayTaskCount++;
+                const durationInHour = (taskEnd - taskStart) / 3600000;
+                totalDuration += durationInHour
             }
-
-            //SECONDE CONDITION = 
-            // si la tache est sur un seul jour : 
-                // Selectionne les taches prevues qui se deroulent sur le meme jour que la data a associer
-                // calcule la durée des taches associées et de la ta A associer
-                // SI c'est plus petit ou egal a 8 c'est ok sinon non
-
-
-                let hoursWorked = 7; // Exemple de nombre d'heures travaillées
-
-
-                if (hoursWorked >= 8) {
-                hoursWorked = 8; // Limite le nombre d'heures travaillées à 8 heures
-                }
-
-            
-                const startWorkHour = 9; // Heure de début de travail
-                const endWorkHour = 17; // Heure de fin de travail
-                const maxWorkHourPerDay = 8; // Maximum d'heures de travail par jour
-
-                const currentHour = new Date().getHours(); // Obtient l'heure actuelle
-
-                let hoursWorkedToday = currentHour - startWorkHour; // Calcule le nombre d'heures travaillées aujourd'hui
-
-                if (hoursWorkedToday >= maxWorkHourPerDay) {
-                hoursWorkedToday = maxWorkHourPerDay; // Limite le nombre d'heures travaillées à un maximum de 8 heures par jour
-                }
-
-                console.log(hoursWorkedToday); // Affiche le nombre d'heures travaillées aujourd'hui, limité à 8 heures si nécessaire
-
-            
         });
+          
+            //  On verifie si l'utilisateur a deja 8h de taches assignées ce jour là et empêche l'assignation à plusieurs taches à la fois
+            const totalDurationWithNewTask = newDurationInHour + totalDuration;
 
-         */
-    }
+            if (conflict) {
+                return res.status(200).json(`${user.firstname} ${user.lastname} a déjà une tâche prévue à ce moment là`);
+            }
+            else if (totalDurationWithNewTask > 8) {
+                return res.status(200).json(`${user.firstname} ${user.lastname} a déjà 8h de tâches prévues ce jour là`);
+            }
+            else
+            {       
+                await taskDatamapper.update(task_id, req.body)
+                return res.status(200).json(`La tâche a bien été assignée à ${user.firstname} ${user.lastname}`);
+            }
+       },
+            
+}
 
 
 
