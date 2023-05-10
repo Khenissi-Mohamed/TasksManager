@@ -15,7 +15,7 @@ const tokenCheck = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) { // on verifie le token avec la clef secrete
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) { // on verifie le token avec la clef secrete
         if (err) {
             res.status(401).json("token invalide");
             console.log('probleme token')

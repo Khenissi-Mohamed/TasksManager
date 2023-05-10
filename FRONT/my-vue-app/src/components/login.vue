@@ -29,8 +29,8 @@ export default {
     data() {
         return {
             user: {
-                email: '',
-                password: '',
+                email: 'marco@gmail.com',
+                password: 'marco',
             },
             logged: false,
             message: '',
@@ -39,7 +39,7 @@ export default {
     methods: {
         async handleSubmit() {
             try {
-                const response = await axios.post('http://localhost:3000/user/login', {
+                const response = await axios.post('https://task-manager-gtp.up.railway.app/user/login', {
                     email: this.user.email,
                     password: this.user.password,
                 });
