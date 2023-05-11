@@ -11,7 +11,7 @@ const userController = require('../controllers/userController');
 router.get('/tasks/:id', taskController.getOne);
 router.patch('/tasks/update/:id',tokenCheck, handlerController(taskController.update));
 router.delete('/tasks/delete/:id',tokenCheck, handlerController(taskController.destroy));
-router.get('/tasks',tokenCheck, handlerController(taskController.getAll));
+router.get('/tasks',handlerController(taskController.getAll));
 router.post('/tasks/add',tokenCheck, handlerController(taskController.create));
 
 // --------------- user router --------------- //
