@@ -29,8 +29,8 @@ export default {
     data() {
         return {
             user: {
-                email: 'marco@gmail.com',
-                password: 'marco',
+                email: '',
+                password: '',
             },
             logged: false,
             message: '',
@@ -44,6 +44,7 @@ export default {
                     password: this.user.password,
                 });
                 localStorage.setItem('token', response.data.token);
+                console.log("token du login : ", response.data.token);
                 this.$router.push('/tasks/all');
                 this.logged = true;
             } catch (error) {
