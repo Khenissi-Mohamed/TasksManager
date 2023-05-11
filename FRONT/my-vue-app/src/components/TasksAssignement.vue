@@ -1,44 +1,51 @@
 <template >
     <NavBar />
-    <div class="assignement-task-wrapper">
-        <h1>Assigner une tâche</h1>
-        <form class="assignement-task-form" @submit.prevent="assignTask">
-            <label for="employee">Employé :</label>
-            <select id="employee" v-model="employee" required>
-                <option value="">Choisir un employé</option>
-                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{
-                    employee.firstname }}</option>
-            </select>
-            <label for="task">Tâche :</label>
-            <select id="task" v-model="task" required>
-                <option value="">Choisir une tâche</option>
-                <option v-for="task in unassignedTasks" :key="task.id" :value="task.id">{{ task.libelle }}</option>
-            </select>
-            <button type="submit">Assigner</button>
-        </form>
-    </div>
-    <div class="assignement-task-table">
-        <h1>Tableau des tâches assignées</h1>
-        <div class="error-message" v-if="errorMessage">
-            {{ errorMessage }}
+    <div class="main">
+        <div class="assignement-task-wrapper">
+            <h1>Assigner une tâche</h1>
+            <form class="assignement-task-form" @submit.prevent="assignTask">
+                <label for="employee">Employé :</label>
+                <select id="employee" v-model="employee" required>
+                    <option value="">Choisir un employé</option>
+                    <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{
+                        employee.firstname }}</option>
+                </select>
+                <label for="task">Tâche :</label>
+                <select id="task" v-model="task" required>
+                    <option value="">Choisir une tâche</option>
+                    <option v-for="task in unassignedTasks" :key="task.id" :value="task.id">{{ task.libelle }}</option>
+                </select>
+                <button type="submit">Assigner</button>
+            </form>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Employé</th>
-                    <th>Tâche</th>
-                    <th>Durée total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="task in tasks" :key="task.id">
-                    <td>{{ employees.find(e => e.id === task.user_id) ? employees.find(e => e.id === task.user_id).firstname
-                        + ' ' + employees.find(e => e.id === task.user_id).lastname : 'Non assignée' }}</td>
-                    <td>{{ task.libelle }}</td>
-                    <td>{{ duration(task) }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="assignement-task-table">
+            <h1>Tableau des tâches assignées</h1>
+            <div class="error-message" v-if="errorMessage">
+                {{ errorMessage }}
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employé</th>
+                        <th>Tâche</th>
+                        <th>Période</th>
+                        <th>Durée</th>
+                        <th>Durée total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="task in tasks" :key="task.id">
+                        <td>{{ employees.find(e => e.id === task.user_id) ? employees.find(e => e.id ===
+                            task.user_id).firstname
+                            + ' ' + employees.find(e => e.id === task.user_id).lastname : 'Non assignée' }}</td>
+                        <td>{{ task.libelle }}</td>
+                        <td>{{ formatDateStart(task.start_date) }} </td>
+                        <td>de {{ formatDate(task.start_date) }} à {{ formatDate(task.end_date) }}</td>
+                        <td>{{ duration(task) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 <script>
@@ -68,26 +75,41 @@ export default {
         duration(task) {
             const start = new Date(task.start_date);
             const end = new Date(task.end_date);
-            const duration = (end - start) / 1000 / 60 / 60;
-            return duration.toFixed(2);
+            const durationInMs = end - start;
+            const hours = Math.floor(durationInMs / (1000 * 60 * 60));
+            const minutes = Math.floor((durationInMs / (1000 * 60)) % 60);
+            return `${hours}h${minutes}`;
+        },
+        formatDateStart(date) {
+            const options = { year: "numeric", month: "numeric", day: "numeric" };
+            return new Intl.DateTimeFormat("fr-FR", options).format(new Date(date));
+        },
+        formatDate(date) {
+            {
+                const options = { hour: "numeric", minute: "numeric", hour12: false, timeZone: "Europe/Paris" };
+                return new Intl.DateTimeFormat("fr-FR", options).format(new Date(date));
+            }
+
         },
         async assignTask() {
-            // verifier si la tache est deja assignée
-            // if (this.tasks.find(task => task.id === this.task).user_id) {
-            //     this.errorMessage = 'Cette tâche est déjà assignée';
-            //     setTimeout(() => {
-            //         this.errorMessage = '';
-            //     }, 3000);
-            //     return;
-            // }
-            // verifier si l'employé a travaillé plus de 8h
-            // Code pour affecter la tâche à l'employé dans la base de données
             try {
-                const response = await axios.patch(`https://task-manager-gtp.up.railway.app/tasks/update/${this.task}`, {
-                    user_id: this.employee,
-                }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
-                this.errorMessage = response.data;
-                this.getTasks();
+                const task = this.tasks.find(task => task.id === this.task);
+                const start = new Date(task.start_date);
+                const end = new Date(task.end_date);
+                const durationInMs = end - start;
+                const hours = Math.floor(durationInMs / (1000 * 60 * 60));
+
+                if (hours > 8) {
+                    this.errorMessage = "Refusé : Un employé ne peut pas travailler plus de 8 heures sur une tâche.";
+                } else {
+
+                    const response = await axios.patch(`https://task-manager-gtp.up.railway.app/tasks/update/${this.task}`, {
+                        user_id: this.employee,
+                    }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+                    this.errorMessage = response.data;
+                    this.getTasks();
+                }
+
             }
             catch (error) {
                 console.log(error);
@@ -137,6 +159,14 @@ export default {
 
 </script>
 <style scoped>
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+
+}
+
 .assignement-task-wrapper {
     width: 80%;
     margin: 0 auto;
@@ -149,13 +179,15 @@ h1 {
 }
 
 label {
-    display: inline-block;
+    display: flex;
+    gap: 1rem;
     margin-bottom: 0.5rem;
     font-weight: bold;
+    text-align: left;
 }
 
 select {
-    display: block;
+    display: flex;
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 1rem;
@@ -207,7 +239,7 @@ thead th {
 
 tbody td,
 tbody th {
-    padding: 0.5rem 0;
+    padding: 0.5rem;
     border: 1px solid #ccc;
 }
 

@@ -14,6 +14,7 @@
                     <th>Libellé</th>
                     <th>Heure de début</th>
                     <th>Heure de fin</th>
+                    <th>Durée total</th>
                     <th>Déscription</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -24,6 +25,7 @@
                     <td>{{ task.libelle }}</td>
                     <td>{{ formatDate(task.start_date) }}</td>
                     <td>{{ formatDate(task.end_date) }}</td>
+                    <td>{{ duration(task) }}</td>
                     <td>{{ task.description }}</td>
                     <td>{{ task.status }}</td>
                     <td>
@@ -66,6 +68,16 @@ export default {
             const index = this.tasks.findIndex(task => task.id === taskId);
             this.tasks.splice(index, 1);
         },
+        duration(task) {
+            const start = new Date(task.start_date);
+            const end = new Date(task.end_date);
+            const durationInMs = end - start;
+            const hours = Math.floor(durationInMs / (1000 * 60 * 60));
+            const minutes = Math.floor((durationInMs / (1000 * 60)) % 60);
+            const duration = (end - start) / 1000 / 60 / 60;
+            return `${hours}h${minutes}`;
+        },
+
         formatDate(date) {
             return new Intl.DateTimeFormat("fr-FR", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Paris" }).format(new Date(date));
         }

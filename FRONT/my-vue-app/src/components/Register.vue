@@ -1,9 +1,9 @@
 <template>
-  <div class="register-form">
-    <h2>Inscription</h2>
-  </div>
   <div class="welcome-message" v-if="successMessage">
     {{ successMessage }}
+  </div>
+  <div class="header">
+    <h2>Inscription</h2>
   </div>
   <div class="form-wrapper">
     <form @submit.prevent="submitForm">
@@ -70,6 +70,8 @@ export default {
 
 <style scoped>
 .form-wrapper {
+  display: flex;
+  flex-direction: column;
   max-width: 500px;
   margin: 0 auto;
   padding: 20px;
@@ -78,14 +80,7 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.register-form {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f8f8f8;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+.header {}
 
 h2 {
   text-align: center;
