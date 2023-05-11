@@ -36,8 +36,8 @@ https://tasks-manager-x6rz.vercel.app/
 
 # MCD 
 
-Un employé est affecté au minimum à une tâche et au maximum à une tâche
-une tâche est affecté au maximum à 0 employé et au maximum plusieurs employé 
+- Un employé est affecté au minimum à une tâche et au maximum à une tâche.
+- Une tâche est affecté au minimum à 0 employé et au maximum plusieurs employé. 
 
 
 # user
@@ -62,10 +62,6 @@ une tâche est affecté au maximum à 0 employé et au maximum plusieurs employ�
 | description | VARCHAR | non | "" |
 | status | VARCHAR | non | null |
 | user_id | INT | non | aucun |
-
-
-- Un employé est affecté au minimum à une tâche et au maximum à une tâche.
-- Une tâche est affecté au maximum à 0 employé et au maximum plusieurs employé. 
 
 ---
 # User Stories
@@ -127,7 +123,7 @@ Vite, Vue, Vue-router, Axios
 
 - il doit se connecter pour accéder aux autres page.
 - sinon il sera redirigé vers un formulaire d'incription.
-- il est redirigé vers la page pour créer des tâches et il a accès via la navbar aux autres page du site : 
+- il est redirigé vers la page pour créer des tâches et il a accès, via la navbar aux autres page du site : 
 - voir les taches et à qui elles sont assignées.
 - assigner les tâches.
 
