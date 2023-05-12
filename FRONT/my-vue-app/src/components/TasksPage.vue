@@ -74,8 +74,9 @@ export default {
             const durationInMs = end - start;
             const hours = Math.floor(durationInMs / (1000 * 60 * 60));
             const minutes = Math.floor((durationInMs / (1000 * 60)) % 60);
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
             const duration = (end - start) / 1000 / 60 / 60;
-            return `${hours}h${minutes}`;
+            return `${hours}h${formattedMinutes}`;
         },
 
         formatDate(date) {

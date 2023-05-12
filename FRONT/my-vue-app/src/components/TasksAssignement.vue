@@ -78,7 +78,8 @@ export default {
             const durationInMs = end - start;
             const hours = Math.floor(durationInMs / (1000 * 60 * 60));
             const minutes = Math.floor((durationInMs / (1000 * 60)) % 60);
-            return `${hours}h${minutes}`;
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            return `${hours}h${formattedMinutes}`;
         },
         formatDateStart(date) {
             const options = { year: "numeric", month: "numeric", day: "numeric" };
@@ -94,13 +95,14 @@ export default {
         async assignTask() {
             try {
                 const task = this.tasks.find(task => task.id === this.task);
+                console.log("task8888", task);
                 const start = new Date(task.start_date);
                 const end = new Date(task.end_date);
                 const durationInMs = end - start;
                 const hours = Math.floor(durationInMs / (1000 * 60 * 60));
 
                 if (hours > 8) {
-                    this.errorMessage = "Refusé : Un employé ne peut pas travailler plus de 8 heures sur une tâche.";
+                    this.errorMessage = "Refusé : Un employé ne peut pas travailler plus de 8 heures sur une tâche. Veuillez adapter la durée de la tâche.";
                 } else {
 
                     const response = await axios.patch(`https://task-manager-gtp.up.railway.app/tasks/update/${this.task}`, {
