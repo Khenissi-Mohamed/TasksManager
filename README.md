@@ -46,7 +46,7 @@ https://tasks-manager-x6rz.vercel.app/
 |---|---|---|---|
 | id | INT | non | aucun|
 | firstname | VARCHAR | non | "" |
-| lastname | VARCHAR | non | 0 |
+| lastname | VARCHAR | non | " |
 | email | VARCHAR | non | null |
 | password | VARCHAR | non | null |
 
