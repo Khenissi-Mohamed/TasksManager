@@ -254,4 +254,43 @@ tbody tr:nth-child(even) {
     font-weight: bold;
     margin-bottom: 1rem;
 }
+
+@media (max-width: 700px) {
+    table {
+        border: 0;
+    }
+
+    table caption {
+        font-size: 1.3em;
+    }
+
+    table thead {
+        border: none;
+        clip: rect(0 0 0 0);
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+    }
+
+    table tr {
+        border-bottom: 3px solid #ddd;
+    }
+
+    table td {
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: center;
+        font-size: 0.8em;
+    }
+
+    table td:nth-child(1),
+    table td:nth-child(2) {
+        font-weight: bold;
+    }
+
+    button {
+        padding: 5px 10px;
+        font-size: 0.8em;
+    }
+}
 </style>
