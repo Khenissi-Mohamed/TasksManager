@@ -64,7 +64,7 @@ export default {
     },
     methods: {
         handleDelete(taskId) {
-            axios.delete(`https://task-manager-gtp.up.railway.app/tasks/delete/${taskId}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            axios.delete(`http://task-manager-gtp.up.railway.app/tasks/delete/${taskId}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
             const index = this.tasks.findIndex(task => task.id === taskId);
             this.tasks.splice(index, 1);
         },
@@ -86,7 +86,7 @@ export default {
     async created() {
         const token = localStorage.getItem("token");
         console.log("token du get", token);
-        const tasks = await axios.get("https://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
+        const tasks = await axios.get("http://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
         console.log("tasks", tasks);
         this.tasks = tasks.data;
     },

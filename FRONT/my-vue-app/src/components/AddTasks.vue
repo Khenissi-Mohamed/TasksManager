@@ -71,7 +71,7 @@ export default {
             // Envoie la requête POST à l'API 
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.post("https://task-manager-gtp.up.railway.app/tasks/add", {
+                const response = await axios.post("http://task-manager-gtp.up.railway.app/tasks/add", {
                     libelle: this.task.libelle,
                     start_date: formattedStartDate,
                     end_date: formattedEndDate,

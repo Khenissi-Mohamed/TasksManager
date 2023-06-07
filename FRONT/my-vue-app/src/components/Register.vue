@@ -44,7 +44,7 @@ export default {
   methods: {
     async submitForm() {
       try {
-        const response = await axios.post('https://task-manager-gtp.up.railway.app/user/register', this.user);
+        const response = await axios.post('http://task-manager-gtp.up.railway.app/user/register', this.user);
         if (response) {
           localStorage.setItem('token', response.data.token);
           this.successMessage = `Bienvenue ${this.user.firstname} ${this.user.lastname} !`;
