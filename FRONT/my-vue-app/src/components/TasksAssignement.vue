@@ -105,7 +105,7 @@ export default {
                     this.errorMessage = "Refusé : Un employé ne peut pas travailler plus de 8 heures sur une tâche. Veuillez adapter la durée de la tâche.";
                 } else {
 
-                    const response = await axios.patch(`http://task-manager-gtp.up.railway.app/tasks/update/${this.task}`, {
+                    const response = await axios.patch(`https://task-manager-gtp.up.railway.app/tasks/update/${this.task}`, {
                         user_id: this.employee,
                     }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
                     this.errorMessage = response.data;
@@ -122,7 +122,7 @@ export default {
         async getEmployees() {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://task-manager-gtp.up.railway.app/user", { headers: { Authorization: `Bearer ${token}` } });
+                const response = await axios.get("https://task-manager-gtp.up.railway.app/user", { headers: { Authorization: `Bearer ${token}` } });
                 this.employees = response.data;
                 console.log("employees", response);
             }
@@ -133,7 +133,7 @@ export default {
         async getTasks() {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
+                const response = await axios.get("https://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
                 this.tasks = response.data;
                 console.log("task", response);
             }
@@ -144,7 +144,7 @@ export default {
         async updateAssignedTasks() {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
+                const response = await axios.get("https://task-manager-gtp.up.railway.app/tasks", { headers: { Authorization: `Bearer ${token}` } });
                 this.tasks = response.data;
             }
             catch (error) {

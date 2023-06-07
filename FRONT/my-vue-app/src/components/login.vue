@@ -39,7 +39,7 @@ export default {
     methods: {
         async handleSubmit() {
             try {
-                const response = await axios.post('http://task-manager-gtp.up.railway.app/user/login', {
+                const response = await axios.post('https://task-manager-gtp.up.railway.app/user/login', {
                     email: this.user.email,
                     password: this.user.password,
                 });
